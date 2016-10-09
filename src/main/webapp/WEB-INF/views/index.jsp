@@ -51,6 +51,7 @@ var container = document.getElementById('example1');
 		  minSpareRows: 1,
 		  manualColumnResize: true,
 		  contextMenu: true,
+		  className: "htMiddle htCenter",
 		  mergeCells:[],
 		  /*
 		  afterChange: function (change, source) {			  
