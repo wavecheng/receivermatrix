@@ -1,5 +1,6 @@
 package com.citrix.matrix;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -18,7 +19,7 @@ import com.citrix.matrix.repository.CellRepository;
 public class HomeController {
 
 	@Autowired
-	private CellRepository CellRepository;
+	private CellRepository cellRepository;
 	
 	private Logger log = LoggerFactory.getLogger("matrix");
 	@RequestMapping("/")
@@ -26,18 +27,24 @@ public class HomeController {
 		return "index";
 	}
 	
-	@RequestMapping(value="/save", method=RequestMethod.POST)
+	@RequestMapping(value="/save", method=RequestMethod.POST,consumes = "application/json")
 	@ResponseBody
 	public Cell save(@RequestBody Cell cell){
 		log.debug(cell.toString());
-		cell = CellRepository.save(cell);
+		Cell existing = cellRepository.findByRowAndColumn(cell.getRow(), cell.getColumn());
+		if(existing != null){
+			existing.setValue(cell.getValue());
+			cell = cellRepository.saveAndFlush(existing);
+		}
+		else
+			cell = cellRepository.save(cell);
 		return cell;
 	}
 	
 	@RequestMapping(value="/load", method=RequestMethod.GET)
 	@ResponseBody
 	public List<Cell> load(){
-		return CellRepository.findAll();
+		return cellRepository.findAll();
 	}	
 	
 }

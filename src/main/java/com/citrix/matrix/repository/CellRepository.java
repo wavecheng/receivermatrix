@@ -8,4 +8,6 @@ import com.citrix.matrix.model.Cell;
 @Repository
 public interface CellRepository extends JpaRepository<Cell, Long> {
 
+	Cell findByRowAndColumn(int row, int column);
+	
 }

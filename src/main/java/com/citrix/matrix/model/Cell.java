@@ -3,8 +3,11 @@ package com.citrix.matrix.model;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity(name="Matrix")
+@Table(uniqueConstraints={@UniqueConstraint(columnNames = {"row" , "column"})})
 public class Cell {
 	@Id
 	@GeneratedValue
