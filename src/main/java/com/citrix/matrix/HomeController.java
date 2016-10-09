@@ -13,13 +13,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.citrix.matrix.model.Cell;
+import com.citrix.matrix.model.Data;
 import com.citrix.matrix.repository.CellRepository;
+import com.citrix.matrix.repository.DataRepository;
 
 @Controller
 public class HomeController {
 
 	@Autowired
 	private CellRepository cellRepository;
+	
+	@Autowired
+	private DataRepository dataRepository;
 	
 	private Logger log = LoggerFactory.getLogger("matrix");
 	@RequestMapping("/")
@@ -29,22 +34,34 @@ public class HomeController {
 	
 	@RequestMapping(value="/save", method=RequestMethod.POST,consumes = "application/json")
 	@ResponseBody
-	public Cell save(@RequestBody Cell cell){
-		log.debug(cell.toString());
-		Cell existing = cellRepository.findByRowAndColumn(cell.getRow(), cell.getColumn());
-		if(existing != null){
-			existing.setValue(cell.getValue());
-			cell = cellRepository.saveAndFlush(existing);
-		}
-		else
-			cell = cellRepository.save(cell);
-		return cell;
+	public Data save(@RequestBody String data){
+		log.debug(data.toString());
+		Data d = new Data();
+		d.setId(1);
+		d.setTableData(data);
+		dataRepository.save(d);
+		return d;
+	}
+
+	@RequestMapping(value="/save_config", method=RequestMethod.POST,consumes = "application/json")
+	@ResponseBody
+	public Data save_config(@RequestBody String cfgData){
+		Data d = new Data();
+		d.setId(2);
+		d.setTableData(cfgData);
+		dataRepository.save(d);
+		return d;
 	}
 	
 	@RequestMapping(value="/load", method=RequestMethod.GET)
 	@ResponseBody
-	public List<Cell> load(){
-		return cellRepository.findAll();
+	public Data load(){
+		return dataRepository.findOne(1L);
 	}	
 	
+	@RequestMapping(value="/load_config", method=RequestMethod.GET)
+	@ResponseBody
+	public Data load_config(){
+		return dataRepository.findOne(2L);
+	}		
 }

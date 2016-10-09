@@ -14,9 +14,8 @@
       	 <div class="msgConsole"></div>
          <div id="example1"></div>
         <p>
-          <button name="dump" data-dump="#example1" data-instance="hot1"
-                  title="Prints current data source to Firebug/Chrome Dev Tools">
-            Dump data to console
+          <button name="save" id="save">
+            Save to DB
           </button>
         </p>
   	  </div>
@@ -46,12 +45,14 @@ var container = document.getElementById('example1');
 	
 	var autosaveNotification;
 	var hotOptions = {
-		  startRows: 1,
-		  startCols: 1,
+		  startRows: 2,
+		  startCols: 2,
 		  rowHeaders: true,
 		  minSpareRows: 1,
+		  manualColumnResize: true,
 		  contextMenu: true,
 		  mergeCells:[],
+		  /*
 		  afterChange: function (change, source) {			  
 		    if (source === 'loadData') {
 		      return; //don't save this change
@@ -68,50 +69,46 @@ var container = document.getElementById('example1');
 		      autosaveNotification = setTimeout(function() {
 		    	  $(".msgConsole").html('Changes will be autosaved');
 		      }, 1000);
-		    });
+		    }); 
 		  },
 		  afterGetCellMeta: function (row, col, key, val) {
  		    console.log(this.mergeCells);
     		console.log("cell meta changed", row, col, key, val);
     	 }
+		    */
 	};
 	
 	var hot = new Handsontable(container, hotOptions);
 	
+	$("#save").click(function(){
+		clearTimeout(autosaveNotification);
+	    var request = $.ajax({url:'save',method:'POST',data:JSON.stringify(hot.getData()),contentType:"application/json"});
+	    request.success(function(data){
+	      $(".msgConsole").html('save successfully');
+	      autosaveNotification = setTimeout(function() {
+	    	  $(".msgConsole").html('');
+	      }, 1000);
+	    });
+	    
+	    var request = $.ajax({url:'save_config',method:'POST',data:JSON.stringify(hot.mergeCells.mergedCellInfoCollection),contentType:"application/json"});
+	    request.success(function(data){
+	      console.log("save config success");
+	    }); 
+	});
+	
+	
 	$(function(){
 		var request = $.ajax({url:'load'});
 		request.success(function(data){
-			var rows = 0, cols = 0;			
-			for(var i=0;i<data.length;i++){
-				var el = data[i];
-				if((el.row+1) > rows)
-					rows = el.row + 1;
-				if((el.column +1) > cols)
-					cols = el.column + 1;			
-			}
-			
-			var tableData = new Array(rows);
-			for(var i=0;i<rows;i++){
-				tableData[i] = new Array(cols);
-			}
-			
-			for(var i=0;i<data.length;i++){
-				var el = data[i];
-				tableData[el.row][el.column] = el.value;
-			}
-			console.log(tableData);
-			
-			if(tableData.length == 0){
-				tableData = [['','']];
-			}
-			
-			hot.loadData(tableData);
-			
-			hotOptions.mergeCells = [{row: 0, col: 0, rowspan: 2, colspan: 1} ];
-		    hot.mergeCells = new Handsontable.MergeCells(hotOptions.mergeCells);
-		    hot.updateSettings(hotOptions);
-			
+			hot.loadData(JSON.parse(data.tableData));		
 			hot.render();
+		});
+		
+		request = $.ajax({url:'load_config'});
+		request.success(function(data){
+			hotOptions.mergeCells = JSON.parse(data.tableData);
+			hot.mergeCells = new Handsontable.MergeCells(hotOptions.mergeCells);
+			hot.updateSettings(hotOptions);		
 		});
 	});
 </script>
