@@ -1,8 +1,5 @@
 package com.citrix.matrix;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,17 +9,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.citrix.matrix.model.Cell;
 import com.citrix.matrix.model.Data;
-import com.citrix.matrix.repository.CellRepository;
 import com.citrix.matrix.repository.DataRepository;
 
 @Controller
 public class HomeController {
 
-	@Autowired
-	private CellRepository cellRepository;
-	
+
 	@Autowired
 	private DataRepository dataRepository;
 	
